@@ -19,13 +19,14 @@ public class AopHelper {
 
     static {
         try {
+            // proxyMap 最終的 key 为 代理类的实例，value为 代理 代理类需要切入的目标类
             Map<Class<?>, Set<Class<?>>> proxyMap = createProxyMap();
             Map<Class<?>, List<Proxy>> targetMap = createTargetMap(proxyMap);
             for (Map.Entry<Class<?>, List<Proxy>> targetEntry : targetMap.entrySet()) {
                 Class<?> targetClass = targetEntry.getKey();
                 List<Proxy> proxyList = targetEntry.getValue();
-                Object proxy = ProxyManager.createProxy(targetClass, proxyList);
-                BeanHelper.setBean(targetClass, proxy);
+                Object proxy = ProxyManager.createProxy(targetClass, proxyList);//完成代理对象的构造
+                BeanHelper.setBean(targetClass, proxy);//放入IOC容器之中
             }
         } catch (Exception e) {
             LOGGER.error("aop failure", e);
@@ -34,8 +35,8 @@ public class AopHelper {
 
     private static Map<Class<?>, Set<Class<?>>> createProxyMap() throws Exception {
         Map<Class<?>, Set<Class<?>>> proxyMap = new HashMap<Class<?>, Set<Class<?>>>();
-        addAspectProxy(proxyMap);
-        addTransactionProxy(proxyMap);
+        addAspectProxy(proxyMap);  // 普通切面
+        addTransactionProxy(proxyMap); //事务切面
         return proxyMap;
     }
 
@@ -72,7 +73,7 @@ public class AopHelper {
             for (Class<?> targetClass : targetClassSet) {
                 Proxy proxy = (Proxy) proxyClass.newInstance();
                 if (targetMap.containsKey(targetClass)) {
-                    targetMap.get(targetClass).add(proxy);
+                    targetMap.get(targetClass).add(proxy); //拓展点可以实现切面的切入顺序
                 } else {
                     List<Proxy> proxyList = new ArrayList<Proxy>();
                     proxyList.add(proxy);

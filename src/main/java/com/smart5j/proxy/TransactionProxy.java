@@ -18,7 +18,8 @@ public class TransactionProxy implements Proxy {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(TransactionProxy.class);
 
-    private static final ThreadLocal<Boolean> FLAG_HOLDER = new ThreadLocal<Boolean>() {
+    private static final ThreadLocal<Boolean> FLAG_HOLDER = new ThreadLocal<Boolean>() { //保证统一线程中只会有一次事务的概念，所以有methodA 调用method B ,
+        // 就会只有一次事务
         @Override
         protected Boolean initialValue() {
             return false;
